@@ -1,0 +1,116 @@
+{% set row_class  = 'row mb-0' %}
+{% set col1_class = 'col-sm-3 col-md-2' %}
+{% set col2_class = 'col-sm-9 col-md-10' %}
+
+<div class="card {% if package.abandoned %}border-danger{% else %}border-primary{% endif %} mb-3">
+    <div id="{{ package.highest.name }}" class="card-header {% if package.abandoned %}bg-danger{% else %}bg-primary{% endif %}">
+        <a href="#{{ package.highest.name }}" class="text-white">
+            <svg class="octicon-link" width="16" height="16">
+                <use xlink:href="#octicon-link"></use>
+            </svg>
+            {{ package.highest.name }}
+        </a>
+
+        {% if package.abandoned %}
+        <p class="abandoned">
+            <strong>Abandoned!</strong>
+            Package is abandoned, you should avoid using it.
+            {% if package.replacement %}
+                Use {{ package.replacement }} instead.
+            {% else %}
+                No replacement was suggested.
+            {% endif %}
+        </p>
+        {% endif %}
+    </div>
+
+    <div class="card-body">
+        {% if package.highest.description %}
+        <p>{{ package.highest.description }}</p>
+        {% endif %}
+
+        <dl class="{{ row_class }}">
+            <dt class="{{ col1_class }}"></dt>
+            <dd class="{{ col2_class }}"></dd>
+
+        {% if package.highest.keywords %}
+            <dt class="{{ col1_class }}">Keywords</dt>
+            <dd class="{{ col2_class }}">
+                {% for keyword in package.highest.keywords %}
+                <span class="badge badge-secondary">{{ keyword }}</span>
+                {% endfor %}
+            </dd>
+        {% endif %}
+
+        {% if package.highest.homepage %}
+            <dt class="{{ col1_class }}">Homepage</dt>
+            <dd class="{{ col2_class }}">
+                <a href="{{ package.highest.homepage }}">{{ package.highest.homepage }}</a>
+            </dd>
+        {% endif %}
+
+        {% if package.highest.license %}
+            <dt class="{{ col1_class }}">License</dt>
+            <dd class="{{ col2_class }}">{{ package.highest.license|join(', ') }}</dd>
+        {% endif %}
+
+        {% if package.highest.authors %}
+            <dt class="{{ col1_class }}">Authors</dt>
+            <dd class="{{ col2_class }}">
+                {% for author in package.highest.authors %}
+                    {%- if author.homepage -%}
+                        <a href="{{ author.homepage }}">{{ author.name }}</a>
+                    {%- else -%}
+                        {{ author.name }}
+                    {%- endif -%}
+                    {%- if not loop.last -%}, {% endif -%}
+                {% endfor %}
+            </dd>
+        {% endif %}
+
+        {% if package.highest.support %}
+            <dt class="{{ col1_class }}">Support</dt>
+            <dd class="{{ col2_class }}">
+                <ul class="list-unstyled m-0">
+                    {% for support_type, support_url in package.highest.support %}
+                    <li>{{ support_type|capitalize }}: <a href="{{ support_url }}">{{ support_url }}</a></li>
+                    {% endfor %}
+                </ul>
+            </dd>
+        {% endif %}
+
+            <dt class="{{ col1_class }}">Releases</dt>
+            <dd class="{{ col2_class }}">
+                {% for version in package.versions %}
+
+                {% set branch_alias = attribute(version.extra['branch-alias'], version.prettyVersion) %}
+                {%- if branch_alias -%}
+                    {% set branch_alias = ", branch-alias: " ~ branch_alias %}
+                {%- endif -%}
+
+                {%- if package.highest.type == 'metapackage' -%}
+                {{ version.prettyVersion }}
+                {%- elseif version.distType -%}
+                <a href="{{ version.distUrl }}" title="dist-reference: {{ version.distReference }}{{ branch_alias }}">{{ version.prettyVersion }}</a>
+                {%- else -%}
+                <a href="{{ version.sourceUrl }}" title="source-reference: {{ version.sourceReference }}{{ branch_alias }}">{{ version.prettyVersion }}</a>
+                {%- endif -%}
+                {%- if not loop.last -%}, {% endif -%}
+                {% endfor %}
+            </dd>
+
+        {% set package_dependencies = attribute(dependencies, name) %}
+
+        {% if package_dependencies and package_dependencies|length %}
+            <dt class="{{ col1_class }}">Required by</dt>
+            <dd class="{{ col2_class }}">
+                <ul class="list-unstyled m-0">
+                    {% for dependency in package_dependencies %}
+                    <li><a href="#{{ dependency }}">{{ dependency }}</a></li>
+                    {% endfor %}
+                </ul>
+            </dd>
+        {% endif %}
+        </dl>
+    </div>
+</div>
