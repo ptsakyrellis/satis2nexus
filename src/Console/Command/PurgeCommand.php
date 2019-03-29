@@ -15,6 +15,7 @@ namespace Composer\Satis\Console\Command;
 
 use Composer\Command\BaseCommand;
 use Composer\Json\JsonFile;
+use Composer\Satis\Builder\Satis2NexusArchiveHelper;
 use Composer\Satis\PackageSelection\PackageSelection;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -47,6 +48,7 @@ EOT
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+	    $satis2nexus = new Satis2NexusArchiveHelper($output);
         $configFile = $input->getArgument('file');
         $file = new JsonFile($configFile);
         if (!$file->exists()) {
@@ -80,14 +82,16 @@ EOT
         );
 
         $length = strlen($prefix);
-        $needed = [];
+        $neededFiles = [];
+	    $neededPackages = [];
         foreach ($packages as $package) {
             if (!$package->getDistType()) {
                 continue;
             }
             $url = $package->getDistUrl();
             if (substr($url, 0, $length) === $prefix) {
-                $needed[] = substr($url, $length);
+	            $neededFiles[] = substr($url, $length);
+	            $neededPackages[] = $package;
             }
         }
 
@@ -109,7 +113,7 @@ EOT
         $unreferenced = [];
         foreach ($finder as $file) {
             $filename = strtr($file->getRelativePathname(), DIRECTORY_SEPARATOR, '/');
-            if (!in_array($filename, $needed)) {
+            if (!in_array($filename, $neededFiles)) {
                 $unreferenced[] = $file;
             }
         }
@@ -123,11 +127,17 @@ EOT
         foreach ($unreferenced as $file) {
             unlink($file->getPathname());
 
-            $output->writeln(sprintf(
+	        $output->writeln(sprintf(
                 '<info>Removed archive</info>: <comment>%s</comment>',
                 $file->getRelativePathname()
             ));
         }
+
+	    try {
+		    $satis2nexus->deleteNoNeeded2Nexus($neededPackages);
+	    } catch (\ErrorException $exception) {
+		    $output->writeln(sprintf("<error>Les packages n'ont pas été supprimés sur Nexus : '%s'.</error>", $exception->getMessage()));
+	    }
 
         $this->removeEmptyDirectories($output, $distDirectory);
 

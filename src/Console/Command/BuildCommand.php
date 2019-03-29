@@ -20,7 +20,6 @@ use Composer\Json\JsonFile;
 use Composer\Json\JsonValidationException;
 use Composer\Satis\Builder\ArchiveBuilder;
 use Composer\Satis\Builder\PackagesBuilder;
-use Composer\Satis\Builder\WebBuilder;
 use Composer\Satis\Console\Application;
 use Composer\Satis\PackageSelection\PackageSelection;
 use Composer\Util\RemoteFilesystem;
@@ -48,7 +47,6 @@ class BuildCommand extends BaseCommand
                 new InputArgument('packages', InputArgument::IS_ARRAY | InputArgument::OPTIONAL, 'Packages that should be built. If not provided, all packages are built.', null),
                 new InputOption('repository-url', null, InputOption::VALUE_OPTIONAL, 'Only update the repository at given url', null),
                 new InputOption('repository-strict', null, InputOption::VALUE_NONE, 'Also apply the repository filter when resolving dependencies'),
-                new InputOption('no-html-output', null, InputOption::VALUE_NONE, 'Turn off HTML view'),
                 new InputOption('skip-errors', null, InputOption::VALUE_NONE, 'Skip Download or Archive errors'),
                 new InputOption('stats', null, InputOption::VALUE_NONE, 'Display the download progress bar'),
             ])
@@ -207,16 +205,6 @@ EOT
 
         $packagesBuilder = new PackagesBuilder($output, $outputDir, $config, $skipErrors);
         $packagesBuilder->dump($packages);
-
-        if ($htmlView = !$input->getOption('no-html-output')) {
-            $htmlView = !isset($config['output-html']) || $config['output-html'];
-        }
-
-        if ($htmlView) {
-            $web = new WebBuilder($output, $outputDir, $config, $skipErrors);
-            $web->setRootPackage($composer->getPackage());
-            $web->dump($packages);
-        }
 
         return 0;
     }

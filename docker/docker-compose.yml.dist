@@ -1,0 +1,56 @@
+version: '3.7'
+
+services:
+
+  satis_php:
+    container_name: satis_php
+    build:
+      context: ./php
+    working_dir: /var/www/html/satis
+    volumes:
+    - satis:/var/www/html/satis
+    - satis_phpsock:/var/run/php
+    - ./php/zz-docker.conf:/usr/local/etc/php-fpm.d/zz-docker.conf
+    - vendor:/vendor
+    environment:
+    - SYMFONY_CACHE_PATH=/dev/shm/satis/cache/
+    - SYMFONY_LOGS_PATH=/dev/shm/satis/logs/
+
+  satis_nginx:
+    container_name: satis_nginx
+    build:
+      context: ./nginx
+    volumes:
+    - satis:/var/www/html/satis
+    - satis_phpsock:/var/run/php
+    - ./nginx/satis.conf:/etc/nginx/conf.d/satis.conf
+    depends_on:
+    - satis_php
+    ports:
+    - "80:80"
+    environment:
+      - VIRTUAL_PORT=80
+      - VIRTUAL_HOST=satis.local
+
+  satis_composer:
+    container_name: satis_composer
+    build:
+      context: ./composer
+    command: install
+    working_dir: /var/www/html/satis
+    volumes:
+    - satis:/var/www/html/satis
+    - vendor:/vendor
+    environment:
+    - SYMFONY_CACHE_PATH=/dev/shm/satis/cache/
+    - SYMFONY_LOGS_PATH=/dev/shm/satis/log/
+
+volumes:
+  satis_phpsock: ~
+  vendor: ~
+  satis:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=10.0.75.1,rw,vers=3,udp,nolock
+      device: ':/satis'

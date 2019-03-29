@@ -84,7 +84,7 @@ class ArchiveBuilder extends Builder
 
             if ($renderProgress) {
                 $progressBar->setMessage($package->getName(), 'packageName');
-                $progressBar->setMessage($package->getPrettyVersion(), 'packageVersion');
+                $progressBar->setMessage($package->getVersion(), 'packageVersion');
 
                 if (!$hasStarted) {
                     $progressBar->start();
@@ -216,6 +216,7 @@ class ArchiveBuilder extends Builder
      */
     private function archive(DownloadManager $downloadManager, ArchiveManager $archiveManager, PackageInterface $package, string $targetDir)
     {
+	    $satis2nexus = new Satis2NexusArchiveHelper($this->output);
         $format = (string) ($this->config['archive']['format'] ?? 'zip');
         $ignoreFilters = (bool) ($this->config['archive']['ignore-filters'] ?? false);
         $overrideDistType = (bool) ($this->config['archive']['override-dist-type'] ?? false);
@@ -263,12 +264,20 @@ class ArchiveBuilder extends Builder
 
         if ($overrideDistType) {
             $path = $targetDir . '/' . $packageName . '.' . $format;
-            $downloaded = $archiveManager->archive($package, $format, $targetDir, null, $ignoreFilters);
+            $downloaded = $archiveManager->archive($package, $format, $targetDir, $archiveManager->getPackageFilename($package), $ignoreFilters);
             $filesystem->rename($downloaded, $path);
 
             return $path;
         }
 
-        return $archiveManager->archive($package, $format, $targetDir, null, $ignoreFilters);
+        $archive = $archiveManager->archive($package, $format, $targetDir, $archiveManager->getPackageFilename($package), $ignoreFilters);
+
+	    try {
+		    $satis2nexus->send2Nexus($archive, $package->getPrettyName(), $package->getPrettyVersion());
+	    } catch (\ErrorException $exception) {
+		    $this->output->writeln(sprintf("<error>Le package n'a pas été créé sur Nexus : '%s'.</error>", $exception->getMessage()));
+	    }
+
+        return $archive;
     }
 }
