@@ -15,7 +15,7 @@ namespace Composer\Satis\Console\Command;
 
 use Composer\Command\BaseCommand;
 use Composer\Json\JsonFile;
-use Composer\Satis\Builder\Satis2NexusArchiveHelper;
+use Composer\Satis\Builder\Satis2Nexus;
 use Composer\Satis\PackageSelection\PackageSelection;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -48,7 +48,6 @@ EOT
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-	    $satis2nexus = new Satis2NexusArchiveHelper($output);
         $configFile = $input->getArgument('file');
         $file = new JsonFile($configFile);
         if (!$file->exists()) {
@@ -57,7 +56,7 @@ EOT
             return 1;
         }
         $config = $file->read();
-
+	    $satis2nexus = new Satis2Nexus($output,$config);
         /*
          * Check whether archive is defined
          */
@@ -76,8 +75,7 @@ EOT
         $packages = $packageSelection->load();
 
         $prefix = sprintf(
-            '%s/%s/',
-            $config['archive']['prefix-url'] ?? $config['homepage'],
+            '%s/',
             $config['archive']['directory']
         );
 
@@ -120,8 +118,6 @@ EOT
 
         if (empty($unreferenced)) {
             $output->writeln('<warning>No unreferenced archives found.</warning>');
-
-            return 0;
         }
 
         foreach ($unreferenced as $file) {

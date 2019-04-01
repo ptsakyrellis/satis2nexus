@@ -1,8 +1,8 @@
 {
-    "name": "composer/satis",
-    "description": "Simple Repository Generator",
-    "keywords": ["package", "repository", "generator", "static", "composer"],
-    "homepage": "https://github.com/composer/satis",
+    "name": "ac-toulouse/satis2nexus",
+    "description": "Fork de Satis pour automatiser le push de nos packages composer sur Nexus",
+    "keywords": ["package", "repository", "composer", "nexus"],
+    "homepage": "http://gitlab.tyforge.in.ac-rennes.fr/ac-toulouse/ressources-support/gestion-si/satis2nexus",
     "type": "library",
     "license": "MIT",
     "authors": [{
@@ -13,13 +13,9 @@
         "name": "Nils Adermann",
         "email": "naderman@naderman.de",
         "homepage": "http://www.naderman.de"
+    }, {
+        "name": "Gaétan Vénuat"
     }],
-    "support": {
-        "issues": "https://github.com/composer/satis",
-        "source": "https://github.com/composer/satis",
-        "forum": "https://gitter.com/composer/satis",
-        "irc": "irc://freenode.net/composer"
-    },
     "bin": ["bin/satis"],
     "require": {
         "php": "^7.0",
@@ -31,23 +27,9 @@
     "autoload": {
         "psr-4": { "Composer\\Satis\\": "src" }
     },
-    "require-dev": {
-        "phpunit/phpunit": "^6.4",
-        "phpunit/phpunit-mock-objects": "^4.0",
-        "mikey179/vfsstream": "^1.6",
-        "friendsofphp/php-cs-fixer": "^2.11"
-    },
-    "autoload-dev": {
-        "psr-4": { "Composer\\Satis\\": "tests" }
-    },
     "config": {
         "platform": {
             "php": "7.0"
-        }
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "2.0-dev"
         }
     }
 }

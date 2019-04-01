@@ -3,20 +3,31 @@
     "name": "Repository Configuration",
     "type": "object",
     "additionalProperties": false,
-    "required": [ "name", "homepage" ],
+    "required": [ "name", "nexus", "nexus-repository", "nexus-user", "nexus-password" ],
     "properties": {
         "name": {
             "type": "string",
             "description": "Repository name."
         },
+        "nexus": {
+            "type": "string",
+            "description": "Nexus URL."
+        },
+        "nexus-repository": {
+            "type": "string",
+            "description": "Nexus repository name."
+        },
+        "nexus-user": {
+            "type": "string",
+            "description": "Nexus username."
+        },
+        "nexus-password": {
+            "type": "string",
+            "description": "Nexus password."
+        },
         "description": {
             "type": "string",
             "description": "Short Repository description."
-        },
-        "homepage": {
-            "type": "string",
-            "description": "Homepage URL for the Repository.",
-            "format": "uri"
         },
         "require": {
             "type": "object",
@@ -63,11 +74,6 @@
                     "items": {
                         "type": "string"
                     }
-                },
-                "prefix-url": {
-                    "type": "string",
-                    "description": "Location of the downloads.",
-                    "format": "uri"
                 },
                 "checksum": {
                     "type": "boolean",

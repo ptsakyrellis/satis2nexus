@@ -84,8 +84,6 @@ The json config file accepts the following keys:
   has an html page as well or not.
 - <info>"name"</info>: for html output, this defines the name of the
   repository.
-- <info>"homepage"</info>: for html output, this defines the home URL
-  of the repository (where you will host it).
 - <info>"twig-template"</info>: Location of twig template to use for
   building the html output.
 - <info>"abandoned"</info>: Packages that are abandoned. As the key use the
@@ -193,7 +191,7 @@ EOT
             $downloads->dump($packages);
         }
 
-        $packages = $packageSelection->clean();
+        $packages = $packageSelection->getSelected();
 
         if ($packageSelection->hasFilterForPackages() || $packageSelection->hasRepositoryFilter()) {
             // in case of an active filter we need to load the dumped packages.json and merge the

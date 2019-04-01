@@ -64,11 +64,9 @@ class PackagesBuilder extends Builder
         $repo = ['packages' => []];
         if (isset($this->config['providers']) && $this->config['providers']) {
             $providersUrl = 'p/%package%$%hash%.json';
-            if (!empty($this->config['homepage'])) {
-                $repo['providers-url'] = parse_url(rtrim($this->config['homepage'], '/'), PHP_URL_PATH) . '/' . $providersUrl;
-            } else {
-                $repo['providers-url'] = $providersUrl;
-            }
+
+            $repo['providers-url'] = $providersUrl;
+
             $repo['providers'] = [];
             $i = 1;
             // Give each version a unique ID

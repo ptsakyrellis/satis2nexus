@@ -44,7 +44,6 @@ class ArchiveBuilder extends Builder
         $helper = new ArchiveBuilderHelper($this->output, $this->config['archive']);
         $basedir = $helper->getDirectory($this->outputDir);
         $this->output->writeln(sprintf("<info>Creating local downloads in '%s'</info>", $basedir));
-        $endpoint = $this->config['archive']['prefix-url'] ?? $this->config['homepage'];
         $includeArchiveChecksum = (bool) ($this->config['archive']['checksum'] ?? true);
         $composerConfig = $this->composer->getConfig();
         $factory = new Factory();
@@ -75,6 +74,8 @@ class ArchiveBuilder extends Builder
                 ' %current%/%max% [%bar%] %percent:3s%% - Installing %packageName% (%packageVersion%)'
             );
         }
+
+        $files = array();
 
         /* @var \Composer\Package\CompletePackage $package */
         foreach ($packages as $package) {
@@ -140,8 +141,10 @@ class ArchiveBuilder extends Builder
                     $archiveFormat = pathinfo($path, PATHINFO_EXTENSION);
                 }
 
+	            $files[$path]=$package;
+
                 $archive = basename($path);
-                $distUrl = sprintf('%s/%s/%s/%s', $endpoint, $this->config['archive']['directory'], $intermediatePath, $archive);
+                $distUrl = sprintf('%s/%s/%s', $this->config['archive']['directory'], $intermediatePath, $archive);
                 $package->setDistType($archiveFormat);
                 $package->setDistUrl($distUrl);
                 $package->setDistSha1Checksum($includeArchiveChecksum ? hash_file('sha1', $path) : null);
@@ -165,6 +168,13 @@ class ArchiveBuilder extends Builder
                 $progressBar->advance();
             }
         }
+
+	    $satis2nexus = new Satis2Nexus($this->output,$this->config);
+	    try {
+		    $satis2nexus->sendNeeded2Nexus($files);
+	    } catch (\ErrorException $exception) {
+		    $this->output->writeln(sprintf("<error>Les packages n'ont pas été créés sur Nexus : '%s'.</error>", $exception->getMessage()));
+	    }
 
         if ($renderProgress) {
             $progressBar->finish();
@@ -216,7 +226,6 @@ class ArchiveBuilder extends Builder
      */
     private function archive(DownloadManager $downloadManager, ArchiveManager $archiveManager, PackageInterface $package, string $targetDir)
     {
-	    $satis2nexus = new Satis2NexusArchiveHelper($this->output);
         $format = (string) ($this->config['archive']['format'] ?? 'zip');
         $ignoreFilters = (bool) ($this->config['archive']['ignore-filters'] ?? false);
         $overrideDistType = (bool) ($this->config['archive']['override-dist-type'] ?? false);
@@ -271,12 +280,6 @@ class ArchiveBuilder extends Builder
         }
 
         $archive = $archiveManager->archive($package, $format, $targetDir, $archiveManager->getPackageFilename($package), $ignoreFilters);
-
-	    try {
-		    $satis2nexus->send2Nexus($archive, $package->getPrettyName(), $package->getPrettyVersion());
-	    } catch (\ErrorException $exception) {
-		    $this->output->writeln(sprintf("<error>Le package n'a pas été créé sur Nexus : '%s'.</error>", $exception->getMessage()));
-	    }
 
         return $archive;
     }

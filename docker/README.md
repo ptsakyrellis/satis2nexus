@@ -15,7 +15,7 @@ log off
 
 ```
 Compose file(s) : .\docker\docker-compose.yml;
-Service(s) : urbansi_php, urbansi_nginx, urbansi_composer,
+Service(s) : satis_php, satis_nginx, satis_composer,
 ```
 
 ## Configuration des Hosts
@@ -26,7 +26,7 @@ Service(s) : urbansi_php, urbansi_nginx, urbansi_composer,
 ...
 # localhost name resolution is handled within DNS itself.
 	127.0.0.1       autre.local
-	127.0.0.1       urbansi.local
+	127.0.0.1       satis.local
 #	::1             localhost
 ```
-[urbansi.local](http://urbansi.local/)
+[satis.local](http://satis.local/)

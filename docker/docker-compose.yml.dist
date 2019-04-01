@@ -11,10 +11,10 @@ services:
     - satis:/var/www/html/satis
     - satis_phpsock:/var/run/php
     - ./php/zz-docker.conf:/usr/local/etc/php-fpm.d/zz-docker.conf
-    - vendor:/vendor
     environment:
     - SYMFONY_CACHE_PATH=/dev/shm/satis/cache/
     - SYMFONY_LOGS_PATH=/dev/shm/satis/logs/
+    - PHP_IDE_CONFIG=serverName=localhost
 
   satis_nginx:
     container_name: satis_nginx
@@ -40,14 +40,12 @@ services:
     working_dir: /var/www/html/satis
     volumes:
     - satis:/var/www/html/satis
-    - vendor:/vendor
     environment:
     - SYMFONY_CACHE_PATH=/dev/shm/satis/cache/
     - SYMFONY_LOGS_PATH=/dev/shm/satis/log/
 
 volumes:
   satis_phpsock: ~
-  vendor: ~
   satis:
     driver: local
     driver_opts:

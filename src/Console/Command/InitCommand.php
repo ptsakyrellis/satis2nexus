@@ -36,7 +36,6 @@ class InitCommand extends BaseCommand
             ->setDefinition([
                 new InputArgument('file', InputArgument::OPTIONAL, 'JSON file to use', './satis.json'),
                 new InputOption('name', null, InputOption::VALUE_REQUIRED, 'Repository name'),
-                new InputOption('homepage', null, InputOption::VALUE_REQUIRED, 'Home page'),
             ])
             ->setHelp(<<<'EOT'
 The <info>init</info> generates configuration file (satis.json is used by default).
@@ -100,7 +99,6 @@ EOT
 
         $config = [
             'name' => $input->getOption('name'),
-            'homepage' => $input->getOption('homepage'),
             'repositories' => [],
             'require-all' => true,
         ];
@@ -134,16 +132,6 @@ EOT
         $this->prompt($input, $output, 'Repository name', 'name', function ($value) {
             if (!$value) {
                 throw new \InvalidArgumentException('Repository name should not be empty');
-            }
-
-            return $value;
-        });
-
-        $this->prompt($input, $output, 'Home page', 'homepage', function ($value) {
-            if (!preg_match('/https?:\/\/.+/', $value)) {
-                throw new \InvalidArgumentException(
-                    'Enter a valid URL it will be used for building your repository'
-                );
             }
 
             return $value;

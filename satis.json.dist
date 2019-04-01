@@ -1,0 +1,26 @@
+{
+  "name": "Dépôt composer TO_REPLACE",
+  "description": "TO_REPLACE",
+  "repositories": [
+    { "type": "vcs", "url": "TO_REPLACE"},
+    { "type": "vcs", "url": "TO_REPLACE" },
+  ],
+  "nexus": "http://nexus3.tyforge.in.ac-rennes.fr",
+  "nexus-repository": "composer-TO_REPLACE",
+  "nexus-user": "TO_REPLACE",
+  "nexus-password": "TO_REPLACE",
+  "require-all": true,
+  "config": {
+    "ssl": {
+      "verify_peer": false,
+      "allow_self_signed": true
+    },
+    "http-basic": {"TO_REPLACE": {"username": "TO_REPLACE", "password": "TO_REPLACE"}
+    }
+  },
+  "archive": {
+    "directory": "dist",
+    "format": "zip",
+    "skip-dev": false
+  }
+}
