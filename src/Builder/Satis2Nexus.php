@@ -6,6 +6,8 @@ namespace Composer\Satis\Builder;
 
 use Composer\Package\Package;
 use \Curl\Curl;
+use ErrorException;
+use stdClass;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -38,7 +40,7 @@ class Satis2Nexus
 	 *
 	 * @param String $file Le lien de l'archive du package à envoyer
 	 * @param Package $package Le package à envoyer
-	 * @throws \ErrorException
+	 * @throws ErrorException
 	 */
 	public function send2Nexus(String $file, Package $package)
 	{
@@ -48,6 +50,7 @@ class Satis2Nexus
 		$curl = new Curl();
 		$curl->verbose();
 		$curl->setBasicAuthentication($this->config['nexus-user'], $this->config['nexus-password']);
+		$curl->setOpt(CURLOPT_PUT,true);
 		$curl->setOpt(CURLOPT_INFILE,$fh_res);
 		$curl->setOpt(CURLOPT_INFILESIZE,filesize($file));
 		$curl->put($url);
@@ -59,7 +62,7 @@ class Satis2Nexus
 	/**
 	 * Supprime un package de Nexus
 	 * @param String $id L'id du package
-	 * @throws \ErrorException
+	 * @throws ErrorException
 	 */
 	public function remove2Nexus(String $id)
 	{
@@ -74,7 +77,7 @@ class Satis2Nexus
 	/**
 	 * Supprime tous les packages non référencés sur Nexus
 	 * @param array $neededPackages Les packages référencés
-	 * @throws \ErrorException
+	 * @throws ErrorException
 	 */
 	public function deleteNoNeeded2Nexus(array $neededPackages)
 	{
@@ -91,7 +94,7 @@ class Satis2Nexus
 	 * Envoi tous les packages référencés qui n'existent pas déjà sur Nexus
 	 *
 	 * @param array $files Tableau (clé = Lien de l'archive, valeur = package) des packages qui doivent êtres présents sur Nexus
-	 * @throws \ErrorException
+	 * @throws ErrorException
 	 */
 	public function sendNeeded2Nexus(array $files)
 	{
@@ -108,7 +111,7 @@ class Satis2Nexus
 	 * Regarde si un package à besoin d'être sur Nexus
 	 *
 	 * @param array $neededPackages Liste des packages qui doivent êtres sur Nexus
-	 * @param $package \stdClass Le package Nexus à vérifier
+	 * @param $package stdClass Le package Nexus à vérifier
 	 * @return bool
 	 */
 	private function checkIfNeeded(array $neededPackages, $package){
@@ -142,7 +145,7 @@ class Satis2Nexus
 	 * Récupère la liste des packages Nexus
 	 *
 	 * @return array La liste des packages
-	 * @throws \ErrorException
+	 * @throws ErrorException
 	 */
 	public function getAllFromNexus()
 	{
