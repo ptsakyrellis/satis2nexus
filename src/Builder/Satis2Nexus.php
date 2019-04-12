@@ -51,6 +51,7 @@ class Satis2Nexus
 		$curl->verbose();
 		$curl->setBasicAuthentication($this->config['nexus-user'], $this->config['nexus-password']);
 		$curl->setOpt(CURLOPT_PUT,true);
+		$curl->setOpt(CURLOPT_HTTPHEADER, array('Expect:'));
 		$curl->setOpt(CURLOPT_INFILE,$fh_res);
 		$curl->setOpt(CURLOPT_INFILESIZE,filesize($file));
 		$curl->put($url);
