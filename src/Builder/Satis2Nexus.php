@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Composer\Satis\Builder;
 
 use Composer\Package\Package;
+use Composer\Package\PackageInterface;
 use \Curl\Curl;
 use ErrorException;
 use stdClass;
@@ -92,18 +93,32 @@ class Satis2Nexus
 	}
 
 	/**
-	 * Envoi tous les packages référencés qui n'existent pas déjà sur Nexus
+	 * Envoi tous les packages référencés qui n'existent pas déjà sur Nexus, ou qui'il faut mettre à jour
 	 *
-	 * @param array $files Tableau (clé = Lien de l'archive, valeur = package) des packages qui doivent êtres présents sur Nexus
+	 * @param PackageInterface[] $files Tableau (clé = Lien de l'archive, valeur = package) des packages qui doivent êtres présents sur Nexus
+	 * @param PackageInterface[] $oldPackages Les packages du dernier build pour voir ceux qu'il va falloir mettre à jour
 	 * @throws ErrorException
 	 */
-	public function sendNeeded2Nexus(array $files)
+	public function sendNeeded2Nexus(array $files, array $oldPackages)
 	{
 		$presentPackages = $this->getAllFromNexus();
 		foreach ($files as $file => $neededPackage) {
-			// Si c'est un package needed, on ajoute
+			// Si le package n'est pas présent
 			if(!$this->checkIfPresent($presentPackages,$neededPackage)){
 				$this->send2Nexus($file ,$neededPackage);
+			} else{
+				if(empty($oldPackages)){
+					$this->send2Nexus($file ,$neededPackage);
+				}else{
+					foreach($oldPackages as $oldPackage){
+						// ou qu'il n'est pas à jour
+						if($oldPackage->getPrettyName() == $neededPackage->getPrettyName()
+							&& $oldPackage->getPrettyVersion() == $neededPackage->getPrettyVersion()
+							&& $oldPackage->getDistReference() != $neededPackage->getDistReference()){
+							$this->send2Nexus($file ,$neededPackage);
+						}
+					}
+				}
 			}
 		}
 	}
@@ -126,7 +141,7 @@ class Satis2Nexus
 	}
 
 	/**
-	 * Regarde si in package est présent sur Nexus
+	 * Regarde si un package est présent sur Nexus
 	 *
 	 * @param array $presentPackages Liste des packages au format stdClass de Nexus
 	 * @param $package Package Le package à vérifier

@@ -23,13 +23,17 @@ use Composer\Satis\Builder\PackagesBuilder;
 use Composer\Satis\Console\Application;
 use Composer\Satis\PackageSelection\PackageSelection;
 use Composer\Util\RemoteFilesystem;
+use Exception;
+use InvalidArgumentException;
 use JsonSchema\Validator;
+use RuntimeException;
 use Seld\JsonLint\JsonParser;
 use Seld\JsonLint\ParsingException;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use UnexpectedValueException;
 
 /**
  * @author Jordi Boggiano <j.boggiano@seld.be>
@@ -104,7 +108,7 @@ EOT
      *
      * @throws JsonValidationException
      * @throws ParsingException
-     * @throws \Exception
+     * @throws Exception
      *
      * @return int
      */
@@ -149,7 +153,7 @@ EOT
                 throw $e;
             }
             $output->writeln(sprintf('<warning>%s: %s</warning>', get_class($e), $e->getMessage()));
-        } catch (\UnexpectedValueException $e) {
+        } catch (UnexpectedValueException $e) {
             if (!$skipErrors) {
                 throw $e;
             }
@@ -157,7 +161,7 @@ EOT
         }
 
         if (null !== $repositoryUrl && count($packagesFilter) > 0) {
-            throw new \InvalidArgumentException('The arguments "package" and "repository-url" can not be used together.');
+            throw new InvalidArgumentException('The arguments "package" and "repository-url" can not be used together.');
         }
 
         // disable packagist by default
@@ -168,7 +172,7 @@ EOT
         }
 
         if (null === $outputDir) {
-            throw new \InvalidArgumentException('The output dir must be specified as second argument or be configured inside ' . $input->getArgument('file'));
+            throw new InvalidArgumentException('The output dir must be specified as second argument or be configured inside ' . $input->getArgument('file'));
         }
 
         /** @var $application Application */
@@ -183,20 +187,22 @@ EOT
         }
 
         $packages = $packageSelection->select($composer, $verbose);
+	    $oldPackages = $packageSelection->load();
 
         if (isset($config['archive']['directory'])) {
             $downloads = new ArchiveBuilder($output, $outputDir, $config, $skipErrors);
             $downloads->setComposer($composer);
             $downloads->setInput($input);
-            $downloads->dump($packages);
+            $downloads->dump($packages,$oldPackages);
         }
 
         $packages = $packageSelection->getSelected();
 
+
         if ($packageSelection->hasFilterForPackages() || $packageSelection->hasRepositoryFilter()) {
             // in case of an active filter we need to load the dumped packages.json and merge the
             // updated packages in
-            $oldPackages = $packageSelection->load();
+
             $packages += $oldPackages;
             ksort($packages);
         }
@@ -228,7 +234,7 @@ EOT
     }
 
     /**
-     * @throws \RuntimeException
+     * @throws RuntimeException
      *
      * @return string
      */
@@ -238,12 +244,12 @@ EOT
         if (!$home) {
             if (defined('PHP_WINDOWS_VERSION_MAJOR')) {
                 if (!getenv('APPDATA')) {
-                    throw new \RuntimeException('The APPDATA or COMPOSER_HOME environment variable must be set for composer to run correctly');
+                    throw new RuntimeException('The APPDATA or COMPOSER_HOME environment variable must be set for composer to run correctly');
                 }
                 $home = strtr(getenv('APPDATA'), '\\', '/') . '/Composer';
             } else {
                 if (!getenv('HOME')) {
-                    throw new \RuntimeException('The HOME or COMPOSER_HOME environment variable must be set for composer to run correctly');
+                    throw new RuntimeException('The HOME or COMPOSER_HOME environment variable must be set for composer to run correctly');
                 }
                 $home = rtrim(getenv('HOME'), '/') . '/.composer';
             }
@@ -271,7 +277,7 @@ EOT
         $result = $parser->lint($content);
         if (null === $result) {
             if (defined('JSON_ERROR_UTF8') && JSON_ERROR_UTF8 === json_last_error()) {
-                throw new \UnexpectedValueException('"' . $configFile . '" is not UTF-8, could not parse as JSON');
+                throw new UnexpectedValueException('"' . $configFile . '" is not UTF-8, could not parse as JSON');
             }
 
             $data = json_decode($content);

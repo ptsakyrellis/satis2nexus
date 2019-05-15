@@ -17,8 +17,11 @@ use Composer\Composer;
 use Composer\Downloader\DownloadManager;
 use Composer\Factory;
 use Composer\Package\Archiver\ArchiveManager;
+use Composer\Package\CompletePackage;
 use Composer\Package\PackageInterface;
 use Composer\Util\Filesystem;
+use ErrorException;
+use Exception;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -39,7 +42,7 @@ class ArchiveBuilder extends Builder
     /**
      * {@inheritdoc}
      */
-    public function dump(array $packages)
+    public function dump(array $packages, array $oldPackages)
     {
         $helper = new ArchiveBuilderHelper($this->output, $this->config['archive']);
         $basedir = $helper->getDirectory($this->outputDir);
@@ -47,9 +50,9 @@ class ArchiveBuilder extends Builder
         $includeArchiveChecksum = (bool) ($this->config['archive']['checksum'] ?? true);
         $composerConfig = $this->composer->getConfig();
         $factory = new Factory();
-        /* @var \Composer\Downloader\DownloadManager $downloadManager */
+        /* @var DownloadManager $downloadManager */
         $downloadManager = $this->composer->getDownloadManager();
-        /* @var \Composer\Package\Archiver\ArchiveManager $archiveManager */
+        /* @var ArchiveManager $archiveManager */
         $archiveManager = $factory->createArchiveManager($composerConfig, $downloadManager);
         $archiveManager->setOverwriteFiles(false);
 
@@ -77,7 +80,7 @@ class ArchiveBuilder extends Builder
 
         $files = array();
 
-        /* @var \Composer\Package\CompletePackage $package */
+        /* @var CompletePackage $package */
         foreach ($packages as $package) {
             if ($helper->isSkippable($package)) {
                 continue;
@@ -153,7 +156,7 @@ class ArchiveBuilder extends Builder
                 if ($renderProgress) {
                     $this->output->setVerbosity($verbosity);
                 }
-            } catch (\Exception $exception) {
+            } catch (Exception $exception) {
                 if ($renderProgress) {
                     $this->output->setVerbosity($verbosity);
                 }
@@ -171,8 +174,8 @@ class ArchiveBuilder extends Builder
 
 	    $satis2nexus = new Satis2Nexus($this->output,$this->config);
 	    try {
-		    $satis2nexus->sendNeeded2Nexus($files);
-	    } catch (\ErrorException $exception) {
+		    $satis2nexus->sendNeeded2Nexus($files, $oldPackages);
+	    } catch (ErrorException $exception) {
 		    $this->output->writeln(sprintf("<error>Les packages n'ont pas été créés sur Nexus : '%s'.</error>", $exception->getMessage()));
 	    }
 

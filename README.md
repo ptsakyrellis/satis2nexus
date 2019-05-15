@@ -11,6 +11,16 @@ Sur le serveur qui devra réaliser l'envoi des librairies vers le serveur Nexus,
 $ git clone git@gitlabssh.tyforge.in.ac-rennes.fr:ac-toulouse/ressources-support/gestion-si/satis2nexus.git
 ```
 
+### Mise à jour
+
+Sur le serveur qui devra réaliser l'envoi des librairies vers le serveur Nexus, pullez le dépôt *satis2nexus*.
+
+```
+$ git pull origin master
+```
+
+Il est fortement recommandé de supprimer le dossier de build, sans cela, vous risquez de rencontrer des problèmes de mise à jour des dépôts.
+
 ### Configuration
 
 La configuration se fait en éditant le fichier `satis.json` à la racine du projet. Un fichier d'exemple vous est proposé avec le fichier `satis.json.dist`. 

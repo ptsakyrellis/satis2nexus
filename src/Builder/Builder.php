@@ -20,7 +20,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * @author James Hautot <james@rezo.net>
  */
-abstract class Builder implements BuilderInterface
+abstract class Builder
 {
     /** @var OutputInterface $output The output Interface. */
     protected $output;
