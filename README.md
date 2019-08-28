@@ -98,3 +98,6 @@ $ php bin/satis purge <configuration file> <build dir>
 
 - Warning : The purge command is based solely on the content of the `packages.json` file, so you can run this command only after the build command has been run.
 - Archives found in the Nexus repository but not anymore in the git repository (as a tag) will be deleted
+
+# License
+Satis2Nexus is licensed under the MIT License - see the LICENSE file for details
