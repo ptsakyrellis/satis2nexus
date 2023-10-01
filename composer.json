@@ -1,35 +1,50 @@
 {
-    "name": "ac-toulouse/satis2nexus",
-    "description": "Fork de Satis pour automatiser le push de nos packages composer sur Nexus",
-    "keywords": ["package", "repository", "composer", "nexus"],
-    "homepage": "http://gitlab.tyforge.in.ac-rennes.fr/ac-toulouse/ressources-support/gestion-si/satis2nexus",
-    "type": "library",
-    "license": "MIT",
-    "authors": [{
-        "name": "Jordi Boggiano",
-        "email": "j.boggiano@seld.be",
-        "homepage": "http://seld.be"
-    }, {
-        "name": "Nils Adermann",
-        "email": "naderman@naderman.de",
-        "homepage": "http://www.naderman.de"
-    }, {
-        "name": "Gaétan Vénuat"
-    }],
-    "bin": ["bin/satis"],
-    "require": {
-        "php": "^7.0",
-        "composer/composer": "^1.4",
-        "twig/twig": "^1.7 || ^2.0",
-        "symfony/console": "^2.1 || ^3.0.4 || ^4.0",
-        "php-curl-class/php-curl-class": "8.5.0"
+  "name": "ac-toulouse/satis2nexus",
+  "description": "Fork de Satis pour automatiser le push de nos packages composer sur Nexus",
+  "keywords": [
+    "package",
+    "repository",
+    "composer",
+    "nexus"
+  ],
+  "homepage": "http://gitlab.tyforge.in.ac-rennes.fr/ac-toulouse/ressources-support/gestion-si/satis2nexus",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Jordi Boggiano",
+      "email": "j.boggiano@seld.be",
+      "homepage": "http://seld.be"
     },
-    "autoload": {
-        "psr-4": { "Composer\\Satis\\": "src" }
+    {
+      "name": "Nils Adermann",
+      "email": "naderman@naderman.de",
+      "homepage": "http://www.naderman.de"
     },
-    "config": {
-        "platform": {
-            "php": "7.0"
-        }
+    {
+      "name": "Gaétan Vénuat"
+    },
+    {
+      "name": "Philippe Tsakyrellis"
     }
+  ],
+  "bin": [
+    "bin/satis"
+  ],
+  "require": {
+    "php": "^8.0",
+    "composer/composer": "^2.6",
+    "symfony/console": "^5.4 || ^6.0 || ^7.0",
+    "php-curl-class/php-curl-class": "8.5.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Composer\\Satis\\": "src"
+    }
+  },
+  "config": {
+    "platform": {
+      "php": "8.0"
+    }
+  }
 }
